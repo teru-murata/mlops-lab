@@ -21,7 +21,8 @@ jobs:
           wait: 120s
 
       - run: kind load docker-image ml-api:${{ github.sha }} --name lab
-      - run: helm upgrade --install ml-api ./ml-api \
-        --set image.tag=${{ github.sha }}
+      - run: | 
+          helm upgrade --install ml-api ./ml-api \
+            --set image.tag=${{ github.sha }}
 
       - run: kubectl rollout status deployment/ml-api --timeout=90s
