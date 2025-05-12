@@ -74,7 +74,6 @@ Runs on every PR:
 | 2025-05-13 | Helm lint: `nil pointer .Values.autoscaling.enabled` | Block missing in `values.yaml`               | Added `autoscaling:\n  enabled: false`      |
 | 2025-05-13 | `cannot re-use a name that is still in use`          | Left-over k8s resources from `kubectl apply` | `helm uninstall ml-api` → clean install     |
 | 2025-05-13 | `bind: address already in use` during port-forward   | Port 8080/8081 already taken                 | Switched to 8082 or killed blocking process |
-| 2025-05-13 | Accidental PAT leak in chat                          | Human error                                  | Revoked token immediately, issued new PAT   |
 
 ---
 
