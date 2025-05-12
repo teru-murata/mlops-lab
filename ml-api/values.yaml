@@ -1,0 +1,22 @@
+replicaCount: 1
+
+image:
+  repository: ml-api
+  tag: "0.1"
+  pullPolicy: IfNotPresent
+
+service:
+  port: 80
+
+serviceAccount:
+  create: false
+
+ingress:
+  enabled: false
+
+autoscaling:
+  enabled: false
+
+service:
+  type: ClusterIP
+  port: 80
