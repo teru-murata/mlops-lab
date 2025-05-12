@@ -18,7 +18,7 @@ jobs:
       - uses: helm/kind-action@v1
         with:
           cluster_name: lab
-          wait: true
+          wait: 120s
 
       - run: kind load docker-image ml-api:${{ github.sha }} --name lab
       - run: helm upgrade --install ml-api ./chart --set image.tag=${{ github.sha }}
