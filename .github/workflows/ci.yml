@@ -25,4 +25,8 @@ jobs:
           helm upgrade --install ml-api ./ml-api \
             --set image.tag=${{ github.sha }}
 
-      - run: kubectl rollout status deployment/ml-api --timeout=90s
+      - run: kubectl get pods -l app.kubernetes.io/instance=ml-api -o wide
+      - run: |
+          kubectl logs deployment/ml-api --tail=50 || true
+
+      - run: kubectl rollout status deployment/ml-api --timeout=200s

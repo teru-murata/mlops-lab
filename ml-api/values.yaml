@@ -6,7 +6,15 @@ image:
   pullPolicy: IfNotPresent
 
 service:
+  type: ClusterIP
   port: 80
+  targetPort: 8000
+
+containerPort: 8000
+readinessProbe:
+  path: /healthz
+  initialDelaySeconds: 5
+  periodSeconds: 5
 
 serviceAccount:
   create: false
@@ -16,7 +24,3 @@ ingress:
 
 autoscaling:
   enabled: false
-
-service:
-  type: ClusterIP
-  port: 80

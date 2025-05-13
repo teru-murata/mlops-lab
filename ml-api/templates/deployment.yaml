@@ -42,15 +42,23 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: {{ .Values.service.port }}
+              containerPort: {{ .Values.containerPort | default 8000 }}
               protocol: TCP
+
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: {{ .Values.containerPort | default 8000 }}
+            initialDelaySeconds: 5     # adhoc
+            periodSeconds: 5
+
           {{- with .Values.livenessProbe }}
           livenessProbe:
-            {{- toYaml . | nindent 12 }}
+{{- toYaml . | indent 10 }}
           {{- end }}
           {{- with .Values.readinessProbe }}
-          readinessProbe:
-            {{- toYaml . | nindent 12 }}
+          #readinessProbe:
+          #  {{- toYaml . | nindent 12 }}
           {{- end }}
           {{- with .Values.resources }}
           resources:
