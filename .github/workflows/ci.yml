@@ -2,7 +2,7 @@ name: CI
 on:
   push:
     branches: [main]
-  pull_request:           # for PR
+  pull_request:
     branches: [main]
 
 jobs:
@@ -12,21 +12,39 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # 1) build & load image
       - uses: docker/setup-buildx-action@v3
-      - run: docker buildx build --platform linux/arm64 -t ml-api:${{ github.sha }} --load .
+      - run: |
+          docker buildx build \
+            --platform linux/arm64 \
+            -t ml-api:${{ github.sha }} \
+            --load .
 
+      # 2) spin up kind cluster
       - uses: helm/kind-action@v1
         with:
           cluster_name: lab
           wait: 120s
+          kubernetes_version: v1.29.2
 
+      # 3) load the image into kind
       - run: kind load docker-image ml-api:${{ github.sha }} --name lab
-      - run: | 
+
+      # 4) helm upgrade / install
+      - run: |
           helm upgrade --install ml-api ./ml-api \
             --set image.tag=${{ github.sha }}
 
-      - run: kubectl get pods -l app.kubernetes.io/instance=ml-api -o wide
-      - run: |
-          kubectl logs deployment/ml-api --tail=50 || true
-
-      - run: kubectl rollout status deployment/ml-api --timeout=200s
+      # 5) rollout status + debug on failure
+      - name: Debug if rollout fails
+        run: |
+          set -e
+          ( kubectl rollout status deployment/ml-api --timeout=200s ) || {
+            echo "---------- POD LIST ----------"
+            kubectl get pods -o wide
+            echo "---------- DESCRIBE ----------"
+            kubectl describe deployment ml-api
+            echo "---------- LAST 100 LOG LINES ----------"
+            kubectl logs deploy/ml-api --tail=100 || true
+            exit 1
+          }
